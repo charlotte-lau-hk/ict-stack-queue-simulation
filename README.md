@@ -9,7 +9,7 @@ either as a graphical (logical) view or as an array implementation with its vari
 ![Screenshot](./screenshot.png)
 
 ## Features
-- **Stack, Queue and Mixed tabs**: up to 3 structures named A/B/C, X/Y/Z or P/Q/R; `MAX` from 4 to 10.
+- **Stack, Queue and Mixed tabs**: up to 3 structures named A/B/C, X/Y/Z or P/Q/R; `MAX` from 4 to 8.
 - **Two views of the same state**: graphical, or array with `size`, `head`, derived `top` / `tail`,
   stale (grey) cells and the circular-queue wrap-around.
 - **Circular or linear (shift) queue** to compare the two implementations.

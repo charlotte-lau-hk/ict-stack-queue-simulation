@@ -172,6 +172,6 @@ test('New menu: Reset all goes back to the default setup after confirming', asyn
   await page.click('[data-act="newmenu"]');
   await page.click('#menu [data-act="resetall"]');
   await expect(page.locator('.line')).toHaveCount(0);
-  await expect(page.locator('.stepper output')).toHaveText('8');
+  await expect(page.locator('.stepper output')).toHaveText('5');
   await expect(page.locator('[data-act="addline"]')).toBeEnabled();
 });

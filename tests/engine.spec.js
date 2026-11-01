@@ -112,7 +112,7 @@ test('random programs never hit a runtime error and keep values unique', async (
     for (let n = 0; n < 300; n++) {
       const tab = TABS[n % 3];
       const d = newDemo(tab);
-      d.max = 4 + (n % 7);
+      d.max = 4 + (n % 5);
       if (n % 2) d.impl = 'linear';
       if (tab !== 'stack' && n % 5 === 0) { d.structs.push({ name: nextName(d, 'queue'), type: 'queue' }); }
       fillContents(d);

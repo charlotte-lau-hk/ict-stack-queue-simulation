@@ -22,7 +22,7 @@ or tablet (not phone).
 - Default 1 structure, add up to **3**. Names come from a set picked at random per
   demo: A/B/C, X/Y/Z or P/Q/R, used in order. In Mixed, stacks and queues use
   *different* sets so the name hints at the type; type chosen when adding.
-- `MAX` (array capacity): one value for all structures, 4–10, default 8, set before
+- `MAX` (array capacity): one value for all structures, 4–8 (to limit space), default 5, set before
   start.
 - Array index **always starts at 0**.
 - Queue implementation: **circular** (default, from the lesson) or **linear with
@@ -115,3 +115,11 @@ or tablet (not phone).
 - `npm test` runs Playwright against `index.html` (smoke test also asserts no
   external requests). `@playwright/test` is pinned to 1.61.1 to match the shared
   `chromium-1228` build in `~/.cache/ms-playwright` — don't `playwright install`.
+
+### Layout (teacher feedback, round 2)
+- Title is always bilingual: "Stack & Queue Simulator 堆疊與隊列模擬器".
+- Header (top right): theme and language first, then zoom.
+- Speed button sits under Run/Back/Stop/New; Saved and Share link at the bottom of the
+  program pane.
+- Program pane is narrow (`clamp(21rem, 100vw − 36rem, 27rem)`); the structures pane gets
+  the rest so 8 queue cells fit. Single column below 960px.
