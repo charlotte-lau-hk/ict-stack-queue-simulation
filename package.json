@@ -1,0 +1,11 @@
+{
+  "name": "ict-stack-queue-simulation",
+  "private": true,
+  "description": "Dev tooling only. The app itself (index.html) has zero dependencies.",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}
