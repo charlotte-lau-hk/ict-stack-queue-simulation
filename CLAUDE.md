@@ -133,3 +133,6 @@ or tablet (not phone).
 - No line-marker legend (it looked like buttons); the status box uses the same ▶ / ✓
   symbols in words. Status box sits between "+ Add line" and the buttons, with the keys hint
   inside it. Run is the same size as Back / Stop / New (still blue).
+- Cards are grouped by shape: stacks (tall, narrow) side by side, queues (wide, short) in a
+  column beside or below them. Array view: one column, all cards as wide as the widest.
+  The type label sits under the structure name to keep stack cards narrow.

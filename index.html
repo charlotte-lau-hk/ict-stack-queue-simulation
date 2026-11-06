@@ -164,6 +164,12 @@
     background: var(--bg);
   }
   .structs { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+  .sgroup { display: flex; gap: 1rem; min-width: 0; max-width: 100%; }
+  .sgroup.stacks { flex-wrap: wrap; align-items: flex-start; }
+  .sgroup.queues { flex-direction: column; }
+  /* array cards are all wide: one column, all as wide as the widest */
+  .structs.array { display: grid; justify-content: start; }
+  .structs.array .sgroup { display: contents; }
   .card {
     border: 2px solid var(--border);
     border-radius: .8rem;
@@ -174,7 +180,7 @@
   .card.stack { border-color: color-mix(in srgb, var(--stack) 45%, var(--border)); }
   .card.queue { border-color: color-mix(in srgb, var(--queue) 45%, var(--border)); }
   .chead { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .4rem .6rem; margin-bottom: .7rem; }
-  .ctitle { display: flex; align-items: baseline; gap: .6rem; }
+  .ctitle { display: flex; flex-direction: column; line-height: 1.15; }
   .sname { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
   .stack .sname { color: var(--stack); }
   .queue .sname { color: var(--queue); }
@@ -1143,7 +1149,11 @@ function renderLeft() {
       ${hasQueue ? `<span class="badge">${esc(t(d.impl))}</span>` : ''}
     </div>
     <div class="structs ${view}">`;
-  for (const s of d.structs) html += cardHTML(s, S.st[s.name], d, view, err, keys);
+  // group by shape: stacks (tall, narrow) side by side; queues (wide, short) in a column
+  for (const type of ['stack', 'queue']) {
+    const group = d.structs.filter(s => s.type === type);
+    if (group.length) html += `<div class="sgroup ${type}s">${group.map(s => cardHTML(s, S.st[s.name], d, view, err, keys)).join('')}</div>`;
+  }
   html += `</div>${varPanelHTML(S, err)}`;
   $('#left').innerHTML = html;
 }
