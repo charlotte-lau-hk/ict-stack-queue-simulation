@@ -131,10 +131,14 @@ or tablet (not phone).
 - Derived values read like the other variables (`tailX [3]`), with the working in small grey
   lines underneath (`= (headX + sizeX − 1) mod MAX`, `= (1 + 3 − 1) mod 5`).
 - No line-marker legend (it looked like buttons); the status box uses the same ▶ / ✓
-  symbols in words. Status box sits between "+ Add line" and the buttons, with the keys hint
+  symbols in words. Status box sits under "+ Add line", with the keys hint
   inside it. Run is the same size as Back / Stop / New (still blue).
 - Cards are grouped by shape: stacks (tall, narrow) side by side, queues (wide, short) in a
   column beside or below them. Array view: one column, all cards as wide as the widest.
   The type label sits under the structure name to keep stack cards narrow.
 - Wide screens (≥ 1400px): structures pane is as wide as its content (min 42rem) and both
   panes are centred, so spare width becomes equal side margins instead of an empty middle.
+- Run / Back / Stop / New sit in the "Program" header row (small buttons) so they never
+  scroll away with a long program; the line count is in the Add line button
+  ("+ Add line (6/10)"). Program lines are compact (~37px). Status box stays under the
+  program.
