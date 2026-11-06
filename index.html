@@ -35,7 +35,7 @@
     --shadow: 0 1px 3px rgba(15, 23, 42, .08), 0 1px 2px rgba(15, 23, 42, .04);
     --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
     --dur: 600ms;
-    --cw: 2.9rem;
+    --cw: 3rem;
   }
   [data-theme="dark"] {
     --bg: #0b1220;
@@ -164,7 +164,6 @@
     background: var(--bg);
   }
   .structs { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
-  .structs.array { flex-direction: column; align-items: stretch; }
   .card {
     border: 2px solid var(--border);
     border-radius: .8rem;
@@ -174,14 +173,16 @@
   }
   .card.stack { border-color: color-mix(in srgb, var(--stack) 45%, var(--border)); }
   .card.queue { border-color: color-mix(in srgb, var(--queue) 45%, var(--border)); }
-  .chead { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; margin-bottom: .7rem; }
+  .chead { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .4rem .6rem; margin-bottom: .7rem; }
+  .ctitle { display: flex; align-items: baseline; gap: .6rem; }
   .sname { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
   .stack .sname { color: var(--stack); }
   .queue .sname { color: var(--queue); }
   .stype { color: var(--muted); font-size: .9rem; }
-  .stats { display: flex; gap: .3rem; margin-left: auto; }
+  .stats { display: flex; flex-direction: column; gap: .25rem; margin-left: auto; }
   .stat {
-    min-height: 2.4rem;
+    min-height: 2.1rem;
+    text-align: left;
     padding: .2rem .55rem;
     border: 1px solid var(--border);
     border-radius: .5rem;
@@ -216,7 +217,7 @@
     border-top: 0;
     padding: .25rem;
     gap: .2rem;
-    width: 4.2rem;
+    width: 3.3rem;
   }
   .gslot { height: 2.4rem; display: grid; place-items: stretch; border: 1px dashed color-mix(in srgb, var(--border) 70%, transparent); border-radius: .3rem; }
   .gptrs { display: flex; flex-direction: column-reverse; padding: .25rem 0; gap: .2rem; }
@@ -227,11 +228,12 @@
     border-radius: .3rem;
     font-family: var(--mono);
     font-weight: 700;
-    font-size: 1.1rem;
-    background: var(--stack-bg);
+    font-size: 1.2rem;
+    background: var(--stack);
+    color: var(--accent-ink);
     border: 2px solid var(--stack);
   }
-  .queue .tok { background: var(--queue-bg); border-color: var(--queue); }
+  .queue .tok { background: var(--queue); border-color: var(--queue); }
   /* graphical queue */
   .gqueue { display: flex; align-items: center; gap: .5rem; }
   .gqrow { display: flex; gap: .2rem; padding: .25rem; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
@@ -241,7 +243,7 @@
   .gqlabels span { width: 2.9rem; text-align: center; font-size: .8rem; font-weight: 600; color: var(--queue); line-height: 1.1; }
 
   /* array view */
-  .ascroll { overflow-x: auto; padding-bottom: 1rem; }
+  .ascroll { overflow-x: auto; padding-bottom: 1.2rem; }
   .agrid { display: grid; grid-template-columns: 2.8rem repeat(var(--n), var(--cw)); }
   .agrid .c {
     height: 2.4rem;
@@ -253,11 +255,11 @@
     font-weight: 600;
   }
   .agrid .lab { font-family: var(--mono); color: var(--muted); display: grid; place-items: center end; padding-right: .4rem; height: 2.4rem; }
-  .agrid .ix { color: var(--muted); font-weight: 400; background: var(--bg); }
-  .agrid .live { background: var(--cell); font-size: 1.1rem; }
+  .agrid .ix { color: var(--ink); font-weight: 400; background: var(--bg); }
+  .agrid .live { background: var(--cell); font-size: 1.25rem; font-weight: 700; }
   .agrid .stale { background: var(--grey); color: var(--grey-ink); }
   .agrid .unused { background: var(--grey); color: var(--grey-ink); font-weight: 400; }
-  .agrid .mk { min-height: 1.5rem; display: flex; flex-direction: column; align-items: center; font-size: .75rem; font-family: var(--mono); font-weight: 700; line-height: 1; gap: 1px; flex-wrap: wrap; }
+  .agrid .mk { min-height: 1.8rem; display: flex; flex-direction: column; align-items: center; font-size: .85rem; font-family: var(--mono); font-weight: 700; line-height: 1; gap: 2px; flex-wrap: wrap; }
   .mk span { padding: .1rem .2rem; border-radius: .25rem; }
   .mk .m-top, .mk .m-head { background: var(--stack-bg); color: var(--stack); }
   .queue .mk .m-head { background: var(--queue-bg); color: var(--queue); }
@@ -265,7 +267,7 @@
   .agrid .sp { height: .5rem; position: relative; }
   .agrid .sp.on::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: .35rem; background: var(--queue); }
   .stack .agrid .sp.on::after { background: var(--stack); }
-  .agrid .sp .splab { position: absolute; top: .45rem; left: 0; font-size: .72rem; font-family: var(--mono); white-space: nowrap; color: var(--muted); }
+  .agrid .sp .splab { position: absolute; top: .45rem; left: 0; font-size: .85rem; font-family: var(--mono); white-space: nowrap; color: var(--muted); }
   .agrid .wraprow { grid-column: 2 / -1; position: relative; height: 1.9rem; }
   .wrapline {
     position: absolute;
@@ -293,11 +295,13 @@
     transform: translateX(-50%);
     background: var(--panel);
     padding: 0 .4rem;
-    font-size: .75rem;
+    font-size: .85rem;
     color: var(--queue);
     white-space: nowrap;
   }
-  .avars { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin-top: .9rem; align-items: center; }
+  .avars { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: .9rem; align-items: flex-start; }
+  .vder { display: inline-flex; flex-direction: column; gap: .3rem; }
+  .vwork { font-family: var(--mono); font-size: .85rem; color: var(--muted); line-height: 1.35; padding-left: .2rem; white-space: nowrap; }
   .vbox { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--mono); }
   .vbox .vn { color: var(--muted); }
   .vv {
@@ -313,7 +317,7 @@
     font-size: 1.05rem;
     border-radius: .2rem;
   }
-  .vv.dashed { border-style: dashed; color: var(--muted); }
+  .vv.dashed { border-style: dashed; }
   .vv.unset { color: var(--muted); font-weight: 400; border-style: dotted; }
   .vv.ret { background: var(--ret); color: var(--ret-ink); border-color: color-mix(in srgb, var(--ret) 50%, #000); }
 
@@ -377,11 +381,6 @@
   .line.done .lmain { opacity: .6; }
   .line.just .lptr, .line.done .lptr { color: color-mix(in srgb, var(--hl) 75%, var(--ink)); }
   .line.done .lptr { color: var(--muted); }
-  .legend { display: flex; gap: .8rem; font-size: .85rem; color: var(--muted); }
-  .legend span { display: inline-flex; align-items: center; gap: .3rem; }
-  .legend i { font-style: normal; font-weight: 700; padding: 0 .35rem; border-radius: .3rem; border: 1px solid; }
-  .legend .lg-next { color: var(--accent); background: var(--cur-bg); border-color: var(--accent); }
-  .legend .lg-just { color: color-mix(in srgb, var(--hl) 75%, var(--ink)); background: var(--hl-bg); border-color: var(--hl); }
   .status .srow { display: flex; gap: .45rem; align-items: baseline; }
   .status .srow + .srow { margin-top: .25rem; }
   .status .sm { font-weight: 700; flex: none; width: 1rem; text-align: center; }
@@ -438,9 +437,9 @@
     font-weight: 600;
   }
   .addline:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-  .controls { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: .5rem; margin-top: 1rem; }
+  .controls { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: .5rem; margin-top: .6rem; }
   .cbtn {
-    min-height: 3.2rem;
+    min-height: 2.9rem;
     border: 1px solid var(--border);
     border-radius: .7rem;
     background: var(--panel);
@@ -449,21 +448,19 @@
     white-space: nowrap;
     padding: 0 .3rem;
   }
-  .cbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-size: 1.15rem; }
+  .cbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .status {
     margin-top: .8rem;
     padding: .6rem .8rem;
     border-radius: .6rem;
     background: var(--bg);
-    font-size: .95rem;
-    min-height: 2.8rem;
+    font-size: .9rem;
   }
   .status.ok { background: var(--ok-bg); }
   .status.err { background: var(--err-bg); border: 1px solid var(--err); }
   .status .rt { font-family: var(--mono); font-weight: 700; color: var(--err); }
   .status .hint { display: block; margin-top: .3rem; }
-  .crow2 { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin-top: .5rem; }
-  .keys { font-size: .8rem; color: var(--muted); }
+  .status .keys { margin-top: .35rem; text-align: right; font-size: .78rem; color: var(--muted); }
   .rfoot { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
   kbd { font-family: var(--mono); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: .25rem; padding: 0 .3rem; }
 
@@ -523,6 +520,12 @@
     0%, 30% { box-shadow: 0 0 0 .3rem var(--hl); background-color: var(--hl-bg); }
     100% { box-shadow: 0 0 0 .3rem transparent; }
   }
+  /* solid tokens keep their fill (white text) and only get the ring */
+  .tok.flash { animation-name: flashring; }
+  @keyframes flashring {
+    0%, 30% { box-shadow: 0 0 0 .3rem var(--hl); }
+    100% { box-shadow: 0 0 0 .3rem transparent; }
+  }
   .ghost {
     position: fixed;
     z-index: 50;
@@ -539,7 +542,7 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
   }
   @media (prefers-reduced-motion: reduce) {
-    .flash, .stat.alert { animation: none; }
+    .flash, .tok.flash, .stat.alert { animation: none; }
   }
 </style>
 </head>
@@ -612,7 +615,6 @@ const I18N = {
     justStep: 'Just ran line {n}, step {s} of {t}:',
     nextLine: 'Next: line {n}.',
     nextStep: 'Next: step {s} of line {n}.',
-    legendNext: 'next', legendJust: 'just ran',
     stDone: 'Program finished. Back to review, Stop to edit, New for another demo.',
     locked: 'Locked while running — press Stop to edit.',
     mNumber: 'Number', mVariable: 'Variable', mReturned: 'Value returned by', mOp: 'Operation',
@@ -625,7 +627,6 @@ const I18N = {
     hintEmpty: 'Check IsEmpty({X}) first to avoid this error.',
     hintVar: 'Assign a value to {v} first, e.g. {v} ← {op}(…).',
     rtLabel: 'runtime error', atLine: 'line {n}',
-    speed: 'Speed', slow: 'Slow', normal: 'Normal', fast: 'Fast',
     zoomIn: 'Zoom in', zoomOut: 'Zoom out', dark: 'Dark theme', light: 'Light theme', langBtn: '中文',
     saves: 'Saved', share: 'Share link',
     savedTitle: 'Saved programs', saveCurrent: 'Save current demo', load: 'Load', del: 'Delete', close: 'Close',
@@ -661,7 +662,6 @@ const I18N = {
     justStep: '剛執行第 {n} 行第 {s} / {t} 步：',
     nextLine: '下一步：第 {n} 行。',
     nextStep: '下一步：第 {n} 行第 {s} 步。',
-    legendNext: '下一步', legendJust: '剛執行',
     stDone: '程序完成。按「上一步」重溫，「停止」修改程序，「新示範」產生另一個示範。',
     locked: '執行中已鎖定 — 按「停止」以修改。',
     mNumber: '數值', mVariable: '變數', mReturned: '以下函數的回傳值', mOp: '操作',
@@ -674,7 +674,6 @@ const I18N = {
     hintEmpty: '先檢查 IsEmpty({X}) 以避免這個錯誤。',
     hintVar: '先為 {v} 賦值，例如 {v} ← {op}(…)。',
     rtLabel: 'runtime error（執行時錯誤）', atLine: '第 {n} 行',
-    speed: '速度', slow: '慢', normal: '正常', fast: '快',
     zoomIn: '放大', zoomOut: '縮小', dark: '深色主題', light: '淺色主題', langBtn: 'EN',
     saves: '已儲存', share: '分享連結',
     savedTitle: '已儲存的程序', saveCurrent: '儲存目前示範', load: '載入', del: '刪除', close: '關閉',
@@ -1037,7 +1036,6 @@ function restore() {
     if (I18N[s.lang]) app.settings.lang = s.lang;
     if (['light', 'dark'].includes(s.theme)) app.settings.theme = s.theme;
     if (typeof s.zoom === 'number' && s.zoom >= 0.7 && s.zoom <= 1.8) app.settings.zoom = s.zoom;
-    if (SPEEDS[s.speed]) app.settings.speed = s.speed;
     if (['graphical', 'array'].includes(s.view)) app.settings.view = s.view;
   }
   if (saved && TABS.includes(saved.tab)) app.tab = saved.tab;
@@ -1187,7 +1185,7 @@ function cardHTML(s, st, d, view, err, keys) {
   const X = s.name, M = d.max;
   const typeLabel = s.type === 'stack' ? t('stack') : t(d.impl);
   let h = `<div class="card ${s.type}">
-    <div class="chead"><span class="sname">${X}</span><span class="stype">${esc(typeLabel)}</span>${statusBoxes(X, st, M, err)}</div>
+    <div class="chead"><span class="ctitle"><span class="sname">${X}</span><span class="stype">${esc(typeLabel)}</span></span>${statusBoxes(X, st, M, err)}</div>
     ${statusExplain(X, st, M)}`;
   const order = liveOrder(s, st, d);
   if (view === 'graphical') {
@@ -1237,14 +1235,16 @@ function arrayHTML(s, st, d) {
   }
   const wrapped = circ && st.size > 0 && st.head + st.size > M;
   const wrap = circ ? `<div></div><div class="wraprow">${wrapped ? `<div class="wrapline"><span>${esc(t('wraps'))}</span></div>` : ''}</div>` : '';
+  // derived value: name and box like the other variables, the working underneath
+  const der = (name, v, formula, subst) => `<span class="vder"><span class="vbox"><span class="vn">${name}</span><span class="vv dashed" data-ref="der:${name}">${v}</span></span><span class="vwork">= ${formula}<br>= ${subst}</span></span>`;
   let vars = `<span class="vbox"><span class="vn">size${X}</span><span class="vv" data-ref="var:size${X}">${st.size}</span></span>`;
   if (s.type === 'stack') {
-    vars += `<span class="vbox"><span class="vn">top${X} = size${X} − 1 =</span><span class="vv dashed" data-ref="der:top${X}">${minus(st.size - 1)}</span></span>`;
+    vars += der('top' + X, minus(st.size - 1), `size${X} − 1`, `${st.size} − 1`);
   } else if (circ) {
     vars = `<span class="vbox"><span class="vn">head${X}</span><span class="vv" data-ref="var:head${X}">${st.head}</span></span>` + vars;
-    vars += `<span class="vbox"><span class="vn">tail${X} = (head${X} + size${X} − 1) mod MAX = (${st.head} + ${st.size} − 1) mod ${M} =</span><span class="vv dashed" data-ref="der:tail${X}">${tail}</span></span>`;
+    vars += der('tail' + X, tail, `(head${X} + size${X} − 1) mod MAX`, `(${st.head} + ${st.size} − 1) mod ${M}`);
   } else {
-    vars += `<span class="vbox"><span class="vn">tail${X} = size${X} − 1 =</span><span class="vv dashed" data-ref="der:tail${X}">${minus(tail)}</span></span>`;
+    vars += der('tail' + X, minus(tail), `size${X} − 1`, `${st.size} − 1`);
   }
   return `<div class="ascroll"><div class="agrid" style="--n:${M}">${idx}${val}${mk}${sp}${wrap}</div></div>
     <div class="avars">${vars}</div>`;
@@ -1292,7 +1292,6 @@ function renderRight() {
   </div>`;
 
   h += `<div class="phead"><h2>${esc(t('program'))}</h2>
-    <div class="legend"><span><i class="lg-next">▶</i>${esc(t('legendNext'))}</span><span><i class="lg-just">✓</i>${esc(t('legendJust'))}</span></div>
     <span>${d.program.length}/${MAXLINES}</span></div><ol class="lines">`;
   const done = runDone(R, d);
   const err = runError(R);
@@ -1322,17 +1321,13 @@ function renderRight() {
   });
   h += `</ol>
     <button class="addline" data-act="addline" ${locked || d.program.length >= MAXLINES ? 'disabled' : ''}>${esc(t('addLine'))}</button>
+    ${statusHTML(tb)}
     <div class="controls">
       <button class="cbtn primary" data-act="run" ${!d.program.length || done ? 'disabled' : ''}>${esc(t('run'))}</button>
       <button class="cbtn" data-act="back" ${!R || !R.hist.length ? 'disabled' : ''}>${esc(t('back'))}</button>
       <button class="cbtn" data-act="stop" ${!R ? 'disabled' : ''} title="${esc(t('stopTitle'))}">${esc(t('stop'))}</button>
       <button class="cbtn" data-act="newmenu">${esc(t('newBtn'))} ▾</button>
     </div>
-    <div class="crow2">
-      <button class="tbtn" data-act="speed" title="${esc(t('speed'))}">${esc(t('speed'))}: ${esc(t(app.settings.speed))}</button>
-      <span class="keys">${t('keys')}</span>
-    </div>
-    ${statusHTML(tb)}
     <div class="rfoot">
       <button class="tbtn" data-act="saves">${esc(t('saves'))} (${app.saves.length}/${MAXSAVES})</button>
       <button class="tbtn" data-act="share">${esc(t('share'))}</button>
@@ -1385,6 +1380,9 @@ function listingHTML(tb, L) {
 }
 
 function statusHTML(tb) {
+  return statusBox(tb).replace(/<\/div>$/, `<div class="keys">${t('keys')}</div></div>`);
+}
+function statusBox(tb) {
   const d = tb.demo, R = tb.run;
   if (app.notice) {
     const n = app.notice;
@@ -1742,7 +1740,6 @@ document.addEventListener('click', e => {
     case 'view': app.settings.view = el.dataset.v; update(null); break;
     case 'lang': app.settings.lang = app.settings.lang === 'en' ? 'zh' : 'en'; update(null); break;
     case 'theme': app.settings.theme = app.settings.theme === 'light' ? 'dark' : 'light'; update(null); break;
-    case 'speed': { const k = Object.keys(SPEEDS); app.settings.speed = k[(k.indexOf(app.settings.speed) + 1) % k.length]; update(null); break; }
     case 'zoom': app.settings.zoom = Math.round(Math.min(1.8, Math.max(0.7, app.settings.zoom + 0.1 * +el.dataset.d)) * 10) / 10; update(null); break;
     case 'stat': app.open[el.dataset.key] = !app.open[el.dataset.key]; update(null); break;
     case 'max':

@@ -90,7 +90,7 @@ or tablet (not phone).
     `A[i] ← A[i + 1]`, `sizeA ← sizeA − 1`, `return temp`
   - Linear dequeue: each loop pass is its own Run step with `i` shown, so the
     shifting cost is obvious.
-- Changes are animated; animation speed control (slow / normal / fast).
+- Changes are animated at one fixed speed (no speed control; the teacher is happy with it).
 
 ### UI
 - English default, Traditional Chinese (HK) option — UI text only; pseudocode stays
@@ -119,7 +119,17 @@ or tablet (not phone).
 ### Layout (teacher feedback, round 2)
 - Title is always bilingual: "Stack & Queue Simulator 堆疊與隊列模擬器".
 - Header (top right): theme and language first, then zoom.
-- Speed button sits under Run/Back/Stop/New; Saved and Share link at the bottom of the
+- Saved and Share link at the bottom of the
   program pane.
 - Program pane is narrow (`clamp(21rem, 100vw − 36rem, 27rem)`); the structures pane gets
   the rest so 8 queue cells fit. Single column below 960px.
+
+### Look (teacher feedback, round 3)
+- Graphical items are solid-colour tokens with white numbers; slots are narrow (3.3rem).
+- `IsEmpty` / `IsFull` boxes are stacked one above the other at the card's top right.
+- Array cards fit their table (not full width); bigger values, darker indices, larger labels.
+- Derived values read like the other variables (`tailX [3]`), with the working in small grey
+  lines underneath (`= (headX + sizeX − 1) mod MAX`, `= (1 + 3 − 1) mod 5`).
+- No line-marker legend (it looked like buttons); the status box uses the same ▶ / ✓
+  symbols in words. Status box sits between "+ Add line" and the buttons, with the keys hint
+  inside it. Run is the same size as Back / Stop / New (still blue).
