@@ -137,3 +137,19 @@ test('share link round-trips', async ({ page }) => {
   });
   expect(ok).toBe(true);
 });
+
+test('starting variable values are used, and count as used values', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const d = { tab: 'stack', max: 4, impl: 'circular', names: { stack: 'ABC', queue: 'ABC' }, vars: { m: 6 },
+      structs: [{ name: 'A', type: 'stack', init: { arr: [1, null, null, null], size: 1, head: 0 } }],
+      program: [{ op: 'push', t: 'A', arg: { k: 'var', n: 'm' } }] };
+    const tr = buildTrace(d);
+    return { valid: validDemo(d), err: tr.err, arr: tr.lines[0].steps.slice(-1)[0].S.st.A.arr, used: [...usedValues(d)].sort((a, b) => a - b),
+      bad: validDemo({ ...d, vars: { q: 1 } }) || validDemo({ ...d, vars: { m: 99 } }) };
+  });
+  expect(r.valid).toBe(true);
+  expect(r.err).toBeNull();
+  expect(r.arr).toEqual([1, 6, null, null]);
+  expect(r.used).toEqual([1, 6]);
+  expect(r.bad).toBe(false);
+});

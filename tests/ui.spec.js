@@ -175,3 +175,59 @@ test('New menu: Reset all goes back to the default setup after confirming', asyn
   await expect(page.locator('.stepper output')).toHaveText('5');
   await expect(page.locator('[data-act="addline"]')).toBeEnabled();
 });
+
+test('starting contents and variables can be edited before Run, not while running', async ({ page }) => {
+  await load(page, { ...demo, max: 5, structs: [{ name: 'A', type: 'stack', init: { arr: [5, null, null, null, null], size: 1, head: 0 } }] });
+  const init = () => page.evaluate(() => ({ A: T().demo.structs[0].init, vars: initVars(T().demo) }));
+
+  // add on top: the "+" slot, value 9
+  await page.click('[data-act="cadd"][data-x="A"]');
+  await page.click('#menu [data-act="cpick"]:text-is("9")');
+  expect((await init()).A).toEqual({ arr: [5, 9, null, null, null], size: 2, head: 0 });
+
+  // change the bottom item; 9 is in use so it is disabled; the bottom item has no Remove
+  await page.click('[data-act="citem"][data-i="0"]');
+  await expect(page.locator('#menu [data-act="cpick"]:text-is("9")')).toBeDisabled();
+  await expect(page.locator('#menu [data-val="\\"del\\""]')).toHaveCount(0);
+  await page.click('#menu [data-act="cpick"]:text-is("3")');
+  expect((await init()).A.arr.slice(0, 2)).toEqual([3, 9]);
+
+  // remove the top item (array view this time)
+  await page.click('[data-act="view"][data-v="array"]');
+  await page.click('button.c[data-act="citem"][data-i="1"]');
+  await page.click('#menu [data-val="\\"del\\""]');
+  expect((await init()).A).toEqual({ arr: [3, null, null, null, null], size: 1, head: 0 });
+
+  // preset m = 7, then Push(A, m) runs without an error
+  await page.click('[data-act="cvar"][data-v="m"]');
+  await expect(page.locator('#menu [data-act="cpick"]:text-is("3")')).toBeDisabled();
+  await page.click('#menu [data-act="cpick"]:text-is("7")');
+  expect((await init()).vars.m).toBe(7);
+  await page.evaluate(() => { T().demo.program = [{ op: 'push', t: 'A', arg: { k: 'var', n: 'm' } }]; update(null); });
+  await page.click('[data-act="run"]');
+  await expect(page.locator('.status')).not.toHaveClass(/err/);
+  await expect(page.locator('[data-ref="cell:A:1"]')).toHaveText('7');
+
+  // locked while running: no edit controls; Stop brings them back
+  await expect(page.locator('[data-act="cadd"], [data-act="citem"], [data-act="cvar"], [data-act="cempty"]')).toHaveCount(0);
+  await page.click('[data-act="stop"]');
+  await expect(page.locator('[data-act="cempty"][data-x="A"]')).toBeEnabled();
+  await page.click('[data-act="cempty"][data-x="A"]');
+  expect((await init()).A.size).toBe(0);
+});
+
+test('editing contents regenerates an untouched random program', async ({ page }) => {
+  await load(page, { ...demo, tab: 'queue', max: 6, names: { stack: 'XYZ', queue: 'XYZ' },
+    structs: [{ name: 'X', type: 'queue', init: { arr: [null, null, null, null, 4, 8], size: 2, head: 4 } }] });
+  await page.click('[data-act="view"][data-v="array"]');
+  for (let rep = 0; rep < 10; rep++) {
+    await page.evaluate(() => doRestart(true));
+    for (const sel of ['[data-act="chead"][data-d="1"]', '[data-act="cempty"]', '[data-act="crand"]']) {
+      if (!(await page.locator(sel).isEnabled())) continue;
+      await page.click(sel);
+      const r = await page.evaluate(() => ({ gen: T().demo.generated, err: buildTrace(T().demo).err }));
+      expect(r.gen).toBe(true);
+      expect(r.err).toBeNull();
+    }
+  }
+});

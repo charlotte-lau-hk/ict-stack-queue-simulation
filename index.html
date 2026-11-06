@@ -329,6 +329,19 @@
     border-radius: .2rem;
   }
   .vv.dashed { border-style: dashed; }
+  /* editing the starting contents */
+  .edithint { font-size: .85rem; color: var(--muted); }
+  button.tok { font: inherit; font-family: var(--mono); font-weight: 700; font-size: 1.2rem; color: var(--accent-ink); padding: 0; }
+  button.tok:hover, .agrid button.c:hover, button.vv:hover { outline: 2px solid var(--hl); outline-offset: 1px; }
+  .addslot { border: 2px dashed var(--accent); border-radius: .3rem; background: transparent; color: var(--accent); font-weight: 700; font-size: 1.2rem; padding: 0; }
+  .addslot:hover, .agrid .addcell:hover { background: var(--cur-bg); }
+  .agrid button.c { font: inherit; font-family: var(--mono); font-weight: 600; color: inherit; padding: 0; }
+  .agrid button.c.live { font-size: 1.25rem; font-weight: 700; }
+  .agrid .addcell { background: transparent; color: var(--accent); font-weight: 700; font-size: 1.2rem; outline: 2px dashed var(--accent); outline-offset: -5px; }
+  .hbtn { border: 1px solid var(--border); background: var(--panel); border-radius: .4rem; min-width: 2rem; min-height: 2.2rem; padding: 0; color: var(--accent); font-size: .8rem; }
+  .hbtn:hover { border-color: var(--accent); }
+  .cedit { display: flex; gap: .3rem; margin-top: .7rem; }
+  .tbtn.sm { min-height: 2rem; min-width: 0; font-size: .8rem; padding: .1rem .6rem; }
   .vv.unset { color: var(--muted); font-weight: 400; border-style: dotted; }
   .vv.ret { background: var(--ret); color: var(--ret-ink); border-color: color-mix(in srgb, var(--ret) 50%, #000); }
 
@@ -649,6 +662,9 @@ const I18N = {
     out: 'out', in: 'in', wraps: 'wraps around',
     sharedLoaded: 'Loaded a shared demo.', sharedBad: 'The shared link could not be read.',
     keys: 'Keys: <kbd>→</kbd> Run · <kbd>←</kbd> Back',
+    editHint: 'Before Run: click items or variables to set the starting values.',
+    mAdd: 'Add an item', mChange: 'Change this value', removeItem: 'Remove this item', mStart: 'Starting value of {v}',
+    unassigned: 'Unassigned', emptyBtn: 'Empty', randomBtn: 'Random', headMove: 'Move head',
   },
   zh: {
     title: '堆疊與隊列模擬器',
@@ -696,6 +712,9 @@ const I18N = {
     out: '出', in: '入', wraps: '環繞回到開頭',
     sharedLoaded: '已載入分享的示範。', sharedBad: '無法讀取分享連結。',
     keys: '鍵盤：<kbd>→</kbd> 執行 · <kbd>←</kbd> 上一步',
+    editHint: '執行前：點擊項目或變數以設定初始值。',
+    mAdd: '加入項目', mChange: '更改這個數值', removeItem: '移除這個項目', mStart: '{v} 的初始值',
+    unassigned: '未賦值', emptyBtn: '清空', randomBtn: '隨機', headMove: '移動 head',
   },
 };
 function t(key, p = {}) {
@@ -724,6 +743,14 @@ function initValues(d) {
     const st = s.init;
     for (let j = 0; j < st.size; j++) out.push(st.arr[(st.head + j) % d.max]);
   });
+  const iv = initVars(d);
+  VARS.forEach(k => { if (iv[k] != null) out.push(iv[k]); });
+  return out;
+}
+// starting values of the user variables (demo.vars is optional; missing = unassigned)
+function initVars(d) {
+  const out = {};
+  VARS.forEach(k => { out[k] = d.vars && Number.isInteger(d.vars[k]) ? d.vars[k] : null; });
   return out;
 }
 function usedValues(d, exceptIdx = -1) {
@@ -737,6 +764,7 @@ function freeValues(d, exceptIdx = -1) {
 function fillContents(d, only) {
   const targets = only || d.structs;
   const used = new Set(progLiterals(d));
+  Object.values(initVars(d)).forEach(v => { if (v != null) used.add(v); });
   d.structs.forEach(s => { if (!targets.includes(s) && s.init) initValuesOf(s, d).forEach(v => used.add(v)); });
   const cap = Math.min(d.max - 2, [0, 5, 4, 3][d.structs.length]);
   for (const s of targets) {
@@ -779,7 +807,7 @@ function nextName(d, kind) {
 function initState(d) {
   const st = {};
   d.structs.forEach(s => { st[s.name] = clone(s.init); });
-  return { st, vars: { m: null, n: null, k: null, d: null }, ret: null, temp: null, i: null };
+  return { st, vars: initVars(d), ret: null, temp: null, i: null };
 }
 
 // Pseudocode of each function body (one entry per Run step row)
@@ -1023,6 +1051,13 @@ function validDemo(d) {
       for (let j = 0; j < st.size; j++) if (st.arr[(st.head + j) % d.max] === null) return false;
     }
     if (new Set(d.structs.map(s => s.name)).size !== d.structs.length) return false;
+    if (d.vars != null) {
+      if (typeof d.vars !== 'object') return false;
+      for (const k of Object.keys(d.vars)) {
+        const v = d.vars[k];
+        if (!VARS.includes(k) || !(v === null || (Number.isInteger(v) && v >= VMIN && v <= VMAX))) return false;
+      }
+    }
     if (!Array.isArray(d.program) || d.program.length > MAXLINES) return false;
     for (const ln of d.program) {
       const s = structOf(d, ln.t);
@@ -1145,6 +1180,7 @@ function renderLeft() {
   const err = runError(tb.run);
   const hasQueue = d.structs.some(s => s.type === 'queue');
   const keys = new Set();
+  const ed = !tb.run; // starting contents are editable before Run and after Stop
   let html = `<div class="ltool">
       <div class="seg" role="group">
         <button data-act="view" data-v="graphical" aria-pressed="${view === 'graphical'}">${esc(t('viewGraphical'))}</button>
@@ -1152,14 +1188,15 @@ function renderLeft() {
       </div>
       <span class="badge">MAX = ${d.max}</span>
       ${hasQueue ? `<span class="badge">${esc(t(d.impl))}</span>` : ''}
+      ${ed ? `<span class="edithint">✎ ${esc(t('editHint'))}</span>` : ''}
     </div>
     <div class="structs ${view}">`;
   // group by shape: stacks (tall, narrow) side by side; queues (wide, short) in a column
   for (const type of ['stack', 'queue']) {
     const group = d.structs.filter(s => s.type === type);
-    if (group.length) html += `<div class="sgroup ${type}s">${group.map(s => cardHTML(s, S.st[s.name], d, view, err, keys)).join('')}</div>`;
+    if (group.length) html += `<div class="sgroup ${type}s">${group.map(s => cardHTML(s, S.st[s.name], d, view, err, keys, ed)).join('')}</div>`;
   }
-  html += `</div>${varPanelHTML(S, err)}`;
+  html += `</div>${varPanelHTML(S, err, ed)}`;
   $('#left').innerHTML = html;
 }
 
@@ -1189,14 +1226,17 @@ function liveOrder(s, st, d) {
   return out;
 }
 
-function tokHTML(X, idx, v, keys) {
+function tokHTML(X, idx, v, keys, ed) {
   const key = 'v' + v;
   const k = keys.has(key) ? '' : ` data-key="${key}"`;
   keys.add(key);
-  return `<div class="tok" data-ref="cell:${X}:${idx}"${k}>${v}</div>`;
+  return ed
+    ? `<button class="tok" data-act="citem" data-x="${X}" data-i="${idx}" data-ref="cell:${X}:${idx}"${k}>${v}</button>`
+    : `<div class="tok" data-ref="cell:${X}:${idx}"${k}>${v}</div>`;
 }
+const addSlot = X => `<button class="addslot" data-act="cadd" data-x="${X}" title="${esc(t('mAdd'))}" aria-label="${esc(t('mAdd'))}">+</button>`;
 
-function cardHTML(s, st, d, view, err, keys) {
+function cardHTML(s, st, d, view, err, keys, ed) {
   const X = s.name, M = d.max;
   const typeLabel = s.type === 'stack' ? t('stack') : t(d.impl);
   let h = `<div class="card ${s.type}">
@@ -1207,14 +1247,14 @@ function cardHTML(s, st, d, view, err, keys) {
     if (s.type === 'stack') {
       let slots = '', ptrs = '';
       for (let i = 0; i < M; i++) {
-        slots += `<div class="gslot">${i < st.size ? tokHTML(X, i, st.arr[i], keys) : ''}</div>`;
+        slots += `<div class="gslot">${i < st.size ? tokHTML(X, i, st.arr[i], keys, ed) : ed && i === st.size ? addSlot(X) : ''}</div>`;
         ptrs += `<div class="gptr">${i === st.size - 1 ? '← ' + esc(t('top')) : ''}</div>`;
       }
       h += `<div class="gstackwrap"><div class="gstack">${slots}</div><div class="gptrs">${ptrs}</div></div>`;
     } else {
       let slots = '', labels = '';
       for (let j = 0; j < M; j++) {
-        slots += `<div class="gslot">${j < order.length ? tokHTML(X, order[j], st.arr[order[j]], keys) : ''}</div>`;
+        slots += `<div class="gslot">${j < order.length ? tokHTML(X, order[j], st.arr[order[j]], keys, ed) : ed && j === order.length ? addSlot(X) : ''}</div>`;
         const lab = [];
         if (j === 0 && order.length) lab.push(t('front'));
         if (j === order.length - 1) lab.push(t('rear'));
@@ -1224,20 +1264,24 @@ function cardHTML(s, st, d, view, err, keys) {
         <div class="gqlabels">${labels}</div>`;
     }
   } else {
-    h += arrayHTML(s, st, d);
+    h += arrayHTML(s, st, d, ed);
   }
+  if (ed) h += `<div class="cedit"><button class="tbtn sm" data-act="cempty" data-x="${X}" ${st.size ? '' : 'disabled'}>${esc(t('emptyBtn'))}</button><button class="tbtn sm" data-act="crand" data-x="${X}">${esc(t('randomBtn'))}</button></div>`;
   return h + '</div>';
 }
 
-function arrayHTML(s, st, d) {
+function arrayHTML(s, st, d, ed) {
   const X = s.name, M = d.max, circ = s.type === 'queue' && d.impl === 'circular';
+  const nextIdx = st.size < M ? (circ ? (st.head + st.size) % M : st.size) : -1;
   const tail = s.type === 'queue' ? (circ ? mod(st.head + st.size - 1, M) : st.size - 1) : null;
   let idx = '<div class="lab">idx</div>', val = `<div class="lab">${X}</div>`, mk = '<div></div>', sp = '<div></div>';
   for (let i = 0; i < M; i++) {
     const live = liveIndex(s, st, d, i);
     const v = st.arr[i];
     idx += `<div class="c ix">${i}</div>`;
-    val += `<div class="c ${live ? 'live' : v == null ? 'unused' : 'stale'}" data-ref="cell:${X}:${i}">${v == null ? '?' : v}</div>`;
+    if (ed && live) val += `<button class="c live" data-act="citem" data-x="${X}" data-i="${i}" data-ref="cell:${X}:${i}">${v}</button>`;
+    else if (ed && i === nextIdx) val += `<button class="c addcell" data-act="cadd" data-x="${X}" data-ref="cell:${X}:${i}" title="${esc(t('mAdd'))}" aria-label="${esc(t('mAdd'))}">+</button>`;
+    else val += `<div class="c ${live ? 'live' : v == null ? 'unused' : 'stale'}" data-ref="cell:${X}:${i}">${v == null ? '?' : v}</div>`;
     const marks = [];
     if (s.type === 'stack' && st.size > 0 && i === st.size - 1) marks.push('<span class="m-top">top</span>');
     if (s.type === 'queue') {
@@ -1256,7 +1300,8 @@ function arrayHTML(s, st, d) {
   if (s.type === 'stack') {
     vars += der('top' + X, minus(st.size - 1), `size${X} − 1`, `${st.size} − 1`);
   } else if (circ) {
-    vars = `<span class="vbox"><span class="vn">head${X}</span><span class="vv" data-ref="var:head${X}">${st.head}</span></span>` + vars;
+    const hb = dir => ed ? `<button class="hbtn" data-act="chead" data-x="${X}" data-d="${dir}" title="${esc(t('headMove'))}" aria-label="${esc(t('headMove'))} ${dir < 0 ? '−1' : '+1'}">${dir < 0 ? '◀' : '▶'}</button>` : '';
+    vars = `<span class="vbox"><span class="vn">head${X}</span>${hb(-1)}<span class="vv" data-ref="var:head${X}">${st.head}</span>${hb(1)}</span>` + vars;
     vars += der('tail' + X, tail, `(head${X} + size${X} − 1) mod MAX`, `(${st.head} + ${st.size} − 1) mod ${M}`);
   } else {
     vars += der('tail' + X, minus(tail), `size${X} − 1`, `${st.size} − 1`);
@@ -1265,10 +1310,13 @@ function arrayHTML(s, st, d) {
     <div class="avars">${vars}</div>`;
 }
 
-function varPanelHTML(S, err) {
-  const box = (name, v, ref, cls = '') => `<span class="vbox"><span class="vn">${name}</span><span class="vv ${cls}${v == null ? ' unset' : ''}${err && err.alert === ref ? ' alert' : ''}" data-ref="${ref}" ${v == null ? `title="${esc(t('notAssigned'))}"` : ''}>${v == null ? '—' : v}</span></span>`;
+function varPanelHTML(S, err, ed) {
+  const box = (name, v, ref, cls = '', act = '') => {
+    const tag = act ? 'button' : 'span';
+    return `<span class="vbox"><span class="vn">${name}</span><${tag} class="vv ${cls}${v == null ? ' unset' : ''}${err && err.alert === ref ? ' alert' : ''}" data-ref="${ref}" ${act} ${v == null ? `title="${esc(t('notAssigned'))}"` : ''}>${v == null ? '—' : v}</${tag}></span>`;
+  };
   let h = `<div class="varpanel">
-    <div class="grp"><span class="lbl">${esc(t('variables'))}</span>${VARS.map(v => box(v, S.vars[v], 'var:' + v)).join('')}</div>
+    <div class="grp"><span class="lbl">${esc(t('variables'))}</span>${VARS.map(v => box(v, S.vars[v], 'var:' + v, '', ed ? `data-act="cvar" data-v="${v}"` : '')).join('')}</div>
     <div class="grp retgrp"><span class="vbox"><span class="vn">return</span><span class="vv ret" data-ref="ret">${S.ret == null ? '' : S.ret}</span></span></div>`;
   if (S.temp != null || S.i != null) {
     h += `<div class="grp locals"><span class="lbl">${esc(t('local'))}</span>`;
@@ -1572,6 +1620,45 @@ function editSetup(fn) {
   });
 }
 
+/* ---------- starting contents (before Run / after Stop) ---------- */
+// Rewrite a structure's array from its items in logical order; leftovers are cleared.
+function setItems(s, d, items, head = s.init.head) {
+  const arr = Array(d.max).fill(null);
+  items.forEach((v, j) => { arr[(head + j) % d.max] = v; });
+  s.init = { arr, size: items.length, head };
+}
+function valueMenu(cur, extra = '') {
+  const used = usedValues(T().demo);
+  return `<div class="mgrid">${range(VMIN, VMAX).map(v =>
+    `<button data-act="cpick" data-val="${v}" class="${v === cur ? 'sel' : ''}" ${used.has(v) && v !== cur ? 'disabled' : ''}>${v}</button>`).join('')}</div>${extra}`;
+}
+function contentMenu(el, what) {
+  const d = T().demo, X = el.dataset.x;
+  if (what === 'var') {
+    const v = el.dataset.v, cur = initVars(d)[v];
+    openMenu(el, `<div class="mh">${esc(t('mStart', { v }))}</div>` + valueMenu(cur,
+      `<div class="mlist"><button class="wide" data-act="cpick" data-val="&quot;unset&quot;" ${cur == null ? 'disabled' : ''}>${esc(t('unassigned'))} (—)</button></div>`), { kind: 'content', what, v });
+    return;
+  }
+  if (what === 'add') { openMenu(el, `<div class="mh">${esc(t('mAdd'))}</div>` + valueMenu(null), { kind: 'content', what, X }); return; }
+  const s = structOf(d, X), idx = +el.dataset.i, items = initValuesOf(s, d);
+  const isLast = items.length && s.init.arr[idx] === items[items.length - 1];
+  openMenu(el, `<div class="mh">${esc(t('mChange'))}</div>` + valueMenu(s.init.arr[idx],
+    isLast ? `<div class="mlist"><button class="wide" data-act="cpick" data-val="&quot;del&quot;">✕ ${esc(t('removeItem'))}</button></div>` : ''), { kind: 'content', what, X, idx });
+}
+function applyContent(val) {
+  const c = menuCtx;
+  closeMenu();
+  editSetup(d => {
+    if (c.what === 'var') { d.vars = initVars(d); d.vars[c.v] = val === 'unset' ? null : val; return; }
+    const s = structOf(d, c.X), items = initValuesOf(s, d);
+    if (c.what === 'add') { if (items.length < d.max) items.push(val); }
+    else if (val === 'del') items.pop();
+    else items[items.indexOf(s.init.arr[c.idx])] = val;
+    setItems(s, d, items);
+  });
+}
+
 function newLine(d) {
   const s = d.structs[0];
   const free = freeValues(d);
@@ -1787,6 +1874,13 @@ document.addEventListener('click', e => {
     case 'exp': tb.exp = tb.exp === +el.dataset.i ? -1 : +el.dataset.i; update(null); break;
     case 'chip': chipMenu(el, +el.dataset.i, el.dataset.f); break;
     case 'pick': if (menuCtx) applyPick(JSON.parse(el.dataset.val)); break;
+    case 'cadd': if (!tb.run) contentMenu(el, 'add'); break;
+    case 'citem': if (!tb.run) contentMenu(el, 'item'); break;
+    case 'cvar': if (!tb.run) contentMenu(el, 'var'); break;
+    case 'cpick': if (menuCtx && menuCtx.kind === 'content') applyContent(JSON.parse(el.dataset.val)); break;
+    case 'cempty': editSetup(d => { const st = structOf(d, el.dataset.x); setItems(st, d, []); }); break;
+    case 'crand': editSetup(d => { fillContents(d, [structOf(d, el.dataset.x)]); }); break;
+    case 'chead': editSetup(d => { const st = structOf(d, el.dataset.x); setItems(st, d, initValuesOf(st, d), mod(st.init.head + +el.dataset.d, d.max)); }); break;
     case 'run': doRun(); break;
     case 'back': doBack(); break;
     case 'stop': doReset(); break;

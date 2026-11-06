@@ -142,3 +142,18 @@ or tablet (not phone).
   scroll away with a long program; the line count is in the Add line button
   ("+ Add line (6/10)"). Program lines are compact (~37px). Status box stays under the
   program.
+
+### Editing the starting state (teacher feedback, round 4)
+- Only before Run or after Stop (same lock as the program), in both views. A hint line
+  shows on the structures pane while editing is possible.
+- Stacks / queues: a dashed "+" slot where the next item goes (top / rear) adds a value;
+  click any item to change its value; only the top / rear item has "Remove" (no removing
+  from the middle, so it never looks like a legal stack operation). Edits rewrite the array
+  from the items, so leftover values are cleared. Circular queue: ◀ ▶ around `headX` in the
+  Array view move where the queue starts.
+- Per card "Empty" and "Random" buttons.
+- Variables `m n k d`: click to set a starting value or back to unassigned (`demo.vars`,
+  optional, missing = unassigned). Lets a program start with e.g. `Push(A, m)`.
+- No duplicates: value menus grey out values used in contents, variables or program.
+- Any edit counts as a setup change: an untouched random program is regenerated
+  automatically so it stays error-free.
