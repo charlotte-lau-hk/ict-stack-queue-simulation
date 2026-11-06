@@ -20,6 +20,7 @@ either as a graphical (logical) view or as an array implementation with its vari
 - **Runtime errors** for overflow, underflow and unassigned variables, with a hint to check
   `IsFull` / `IsEmpty`.
 - **Random error-free programs** for students to dry run.
+- **Editable starting state**: before Run, click to add, change or remove items and to give `m`, `n`, `k`, `d` a starting value, e.g. to match a DSE question.
 - English / 繁體中文, light / dark theme, zoom for projectors, large touch targets.
 - Saves up to 5 programs in the browser; share a demo as a link.
 
