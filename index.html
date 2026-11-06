@@ -132,6 +132,11 @@
     padding: 1rem;
     align-items: start;
   }
+  /* wide screens: structures pane only as wide as its content (at least 42rem so switching
+     views doesn't make the layout jump); both panes centred, spare space becomes margins */
+  @media (min-width: 1400px) {
+    main.layout { grid-template-columns: minmax(42rem, max-content) 27rem; justify-content: center; }
+  }
   @media (max-width: 960px) { main.layout { grid-template-columns: 1fr; } }
   .pane {
     background: var(--panel);

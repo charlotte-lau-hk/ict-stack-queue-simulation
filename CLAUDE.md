@@ -136,3 +136,5 @@ or tablet (not phone).
 - Cards are grouped by shape: stacks (tall, narrow) side by side, queues (wide, short) in a
   column beside or below them. Array view: one column, all cards as wide as the widest.
   The type label sits under the structure name to keep stack cards narrow.
+- Wide screens (≥ 1400px): structures pane is as wide as its content (min 42rem) and both
+  panes are centred, so spare width becomes equal side margins instead of an empty middle.
